@@ -1,7 +1,5 @@
 """Tests for TranslationService."""
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from services.translation_service import TranslationError, TranslationService

@@ -1,12 +1,8 @@
 """FastAPI routes for the YouTube Summarization Agent."""
 
-import json
-from typing import Optional
-
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from app.database import init_db
 from services.chapter_service import ChapterService
 from services.export_service import ExportData, ExportService
 from services.history_service import HistoryService

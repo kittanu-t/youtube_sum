@@ -2,9 +2,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import Optional
 
-import requests
 import yt_dlp
 from loguru import logger
 

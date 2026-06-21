@@ -1,8 +1,6 @@
 """History service — SQLite CRUD for video summary history."""
 
 import json
-from datetime import datetime
-from typing import Optional
 
 from loguru import logger
 
@@ -21,8 +19,8 @@ class HistoryService:
         language: str = "en",
         summary: str = "",
         study_notes: str = "",
-        chapters: Optional[list] = None,
-        key_points: Optional[list] = None,
+        chapters: list | None = None,
+        key_points: list | None = None,
     ) -> int:
         """Save a summary to history.
 
@@ -88,7 +86,7 @@ class HistoryService:
             conn.close()
 
     @staticmethod
-    def get_by_video_id(video_id: str) -> Optional[dict]:
+    def get_by_video_id(video_id: str) -> dict | None:
         """Get the most recent history entry for a video.
 
         Args:

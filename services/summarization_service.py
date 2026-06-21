@@ -1,12 +1,9 @@
 """Summarization service — chunk transcripts and summarize via LLM."""
 
-from typing import Optional
-
 import httpx
 from loguru import logger
 
 from app.config import settings
-
 
 # ---------------------------------------------------------------------------
 # Prompt templates
@@ -49,13 +46,14 @@ Transcript:
 
 class SummarizationError(Exception):
     """Raised when summarization fails."""
+
     pass
 
 
 class SummarizationService:
     """Summarizes text using the configured LLM provider (Ollama, OpenAI, or Gemini)."""
 
-    def __init__(self, model: Optional[str] = None):
+    def __init__(self, model: str | None = None):
         self.model = model or settings.ollama_base_url
         self._client = httpx.Client(timeout=300)
 
@@ -213,13 +211,7 @@ class SummarizationService:
             f"gemini-1.5-flash:generateContent?key={settings.gemini_api_key}"
         )
         payload = {
-            "contents": [
-                {
-                    "parts": [
-                        {"text": f"{system}\n\n{user}"}
-                    ]
-                }
-            ],
+            "contents": [{"parts": [{"text": f"{system}\n\n{user}"}]}],
             "generationConfig": {
                 "temperature": 0.3,
                 "maxOutputTokens": 4096,

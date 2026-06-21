@@ -1,7 +1,5 @@
 """Tests for NotesService."""
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from services.notes_service import NotesError, NotesService

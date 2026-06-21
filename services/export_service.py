@@ -5,7 +5,6 @@ import io
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
 
 
 @dataclass
@@ -45,7 +44,9 @@ class ExportService:
         if data.duration:
             lines.append(f"**Duration:** {data.duration}")
         if data.video_id:
-            lines.append(f"**Video ID:** [{data.video_id}](https://www.youtube.com/watch?v={data.video_id})")
+            lines.append(
+                f"**Video ID:** [{data.video_id}](https://www.youtube.com/watch?v={data.video_id})"
+            )
         lines.append(f"**Language:** {data.language}")
         lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         lines.append("")

@@ -2,7 +2,6 @@
 
 import json
 import re
-from typing import Optional
 
 import httpx
 import yt_dlp
@@ -68,7 +67,7 @@ class ChapterService:
         logger.info("No chapters available")
         return []
 
-    def _extract_native_chapters(self, url: str) -> Optional[list[Chapter]]:
+    def _extract_native_chapters(self, url: str) -> list[Chapter] | None:
         """Extract chapters embedded in video metadata."""
         ydl_opts = {
             "quiet": True,
@@ -93,7 +92,7 @@ class ChapterService:
             logger.warning("Chapter extraction failed: {}", exc)
             return None
 
-    def _extract_description_chapters(self, url: str) -> Optional[list[Chapter]]:
+    def _extract_description_chapters(self, url: str) -> list[Chapter] | None:
         """Extract chapters from video description timestamps like 0:00 Intro."""
         ydl_opts = {
             "quiet": True,
@@ -167,7 +166,10 @@ class ChapterService:
         if not settings.openai_api_key:
             return []
         url = f"{settings.openai_base_url.rstrip('/')}/chat/completions"
-        headers = {"Authorization": f"Bearer {settings.openai_api_key}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {settings.openai_api_key}",
+            "Content-Type": "application/json",
+        }
         user_prompt = (
             "Analyze this video transcript and identify 5-10 logical chapters/sections. "
             "Respond with a JSON array of objects, each with 'title' and 'timestamp' fields.\n\n"

@@ -47,7 +47,9 @@ class TestVideoInfoEndpoint:
         with patch("api.routes.YouTubeService") as MockService:
             MockService.validate_url.return_value = True
             MockService.get_video_info.return_value = mock_info
-            response = client.get("/api/video-info", params={"url": "https://youtube.com/watch?v=abc123"})
+            response = client.get(
+                "/api/video-info", params={"url": "https://youtube.com/watch?v=abc123"}
+            )
             assert response.status_code == 200
 
 
@@ -63,12 +65,13 @@ class TestSummarizeEndpoint:
         mock_info.channel = "Channel"
         mock_info.duration = "03:00"
 
-        with patch("api.routes.YouTubeService") as MockYT, \
-             patch("api.routes.TranscriptService") as MockTS, \
-             patch("api.routes.SummarizationService") as MockSS, \
-             patch("api.routes.ChapterService") as MockCS, \
-             patch("api.routes.HistoryService") as MockHS:
-
+        with (
+            patch("api.routes.YouTubeService") as MockYT,
+            patch("api.routes.TranscriptService") as MockTS,
+            patch("api.routes.SummarizationService") as MockSS,
+            patch("api.routes.ChapterService") as MockCS,
+            patch("api.routes.HistoryService") as MockHS,
+        ):
             MockYT.validate_url.return_value = True
             MockYT.extract_video_id.return_value = "abc123"
             MockYT.get_video_info.return_value = mock_info
@@ -77,11 +80,14 @@ class TestSummarizeEndpoint:
             MockCS.return_value.get_chapters.return_value = []
             MockHS.get_by_video_id.return_value = None
 
-            response = client.post("/api/summarize", json={
-                "url": "https://youtube.com/watch?v=abc123",
-                "level": "short",
-                "language": "en",
-            })
+            response = client.post(
+                "/api/summarize",
+                json={
+                    "url": "https://youtube.com/watch?v=abc123",
+                    "level": "short",
+                    "language": "en",
+                },
+            )
             assert response.status_code == 200
             data = response.json()
             assert "summary" in data
@@ -97,10 +103,13 @@ class TestTranslateEndpoint:
     def test_translate_request(self, client):
         with patch("api.routes.TranslationService") as MockTS:
             MockTS.return_value.translate.return_value = "translated text"
-            response = client.post("/api/translate", json={
-                "text": "Hello",
-                "target_language": "th",
-            })
+            response = client.post(
+                "/api/translate",
+                json={
+                    "text": "Hello",
+                    "target_language": "th",
+                },
+            )
             assert response.status_code == 200
             data = response.json()
             assert data["translated_text"] == "translated text"
@@ -108,44 +117,59 @@ class TestTranslateEndpoint:
 
 class TestExportEndpoint:
     def test_export_markdown(self, client):
-        response = client.post("/api/export", json={
-            "video_id": "abc",
-            "summary": "Test summary",
-            "format": "markdown",
-        })
+        response = client.post(
+            "/api/export",
+            json={
+                "video_id": "abc",
+                "summary": "Test summary",
+                "format": "markdown",
+            },
+        )
         assert response.status_code == 200
         data = response.json()
         assert "content" in data
         assert data["filename"].endswith(".md")
 
     def test_export_txt(self, client):
-        response = client.post("/api/export", json={
-            "video_id": "abc",
-            "format": "txt",
-        })
+        response = client.post(
+            "/api/export",
+            json={
+                "video_id": "abc",
+                "format": "txt",
+            },
+        )
         assert response.status_code == 200
         assert response.json()["filename"].endswith(".txt")
 
     def test_export_json(self, client):
-        response = client.post("/api/export", json={
-            "video_id": "abc",
-            "format": "json",
-        })
+        response = client.post(
+            "/api/export",
+            json={
+                "video_id": "abc",
+                "format": "json",
+            },
+        )
         assert response.status_code == 200
 
     def test_export_csv(self, client):
-        response = client.post("/api/export", json={
-            "video_id": "abc",
-            "format": "csv",
-        })
+        response = client.post(
+            "/api/export",
+            json={
+                "video_id": "abc",
+                "format": "csv",
+            },
+        )
         assert response.status_code == 200
         assert response.json()["filename"].endswith(".csv")
 
     def test_invalid_format(self, client):
-        response = client.post("/api/export", json={
-            "video_id": "abc",
-            "format": "pdf",
-        })
+        response = client.post(
+            "/api/export",
+            json={
+                "video_id": "abc",
+                "format": "pdf",
+            },
+        )
         assert response.status_code == 400
 
 

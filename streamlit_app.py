@@ -1,8 +1,6 @@
 """Streamlit frontend for the YouTube Summarization Agent."""
 
-import json
 import os
-import sys
 
 import requests
 import streamlit as st
@@ -65,7 +63,9 @@ with st.sidebar:
     summary_level = st.selectbox(
         "Summary Level",
         options=["short", "detailed", "bullet"],
-        format_func=lambda x: {"short": "Short", "detailed": "Detailed", "bullet": "Bullet Points"}[x],
+        format_func=lambda x: {"short": "Short", "detailed": "Detailed", "bullet": "Bullet Points"}[
+            x
+        ],
     )
 
     st.divider()
@@ -111,11 +111,14 @@ if summarize_clicked and url:
             st.session_state.video_info = info
 
         with st.spinner("📝 Generating summary..."):
-            result = api_post("summarize", {
-                "url": url,
-                "level": summary_level,
-                "language": language,
-            })
+            result = api_post(
+                "summarize",
+                {
+                    "url": url,
+                    "level": summary_level,
+                    "language": language,
+                },
+            )
             st.session_state.summary_result = result
 
     except requests.HTTPError as exc:
@@ -135,10 +138,13 @@ if notes_clicked and url:
             st.session_state.video_info = info
 
         with st.spinner("📚 Generating study notes..."):
-            result = api_post("notes", {
-                "url": url,
-                "language": language,
-            })
+            result = api_post(
+                "notes",
+                {
+                    "url": url,
+                    "language": language,
+                },
+            )
             st.session_state.notes_result = result
 
     except requests.HTTPError as exc:
@@ -170,7 +176,9 @@ if st.session_state.video_info:
             st.markdown(f"**Language:** {language}")
     else:
         st.subheader(info.get("title", "Unknown Title"))
-        st.markdown(f"**Channel:** {info.get('channel', 'Unknown')} | **Duration:** {info.get('duration', 'Unknown')}")
+        st.markdown(
+            f"**Channel:** {info.get('channel', 'Unknown')} | **Duration:** {info.get('duration', 'Unknown')}"
+        )
 
 # ── Summary output ─────────────────────────────────────────────────
 

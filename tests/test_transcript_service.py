@@ -1,6 +1,6 @@
 """Tests for TranscriptService."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -18,7 +18,7 @@ class TestTranscriptServiceCleaning:
     def test_clean_transcript_collapses_whitespace(self):
         raw = "Line one.\n\n\n\nLine two."
         result = TranscriptService._clean_transcript(raw)
-        assert "Line one. Line two." == result
+        assert result == "Line one. Line two."
 
     def test_clean_vtt_removes_header(self):
         content = "WEBVTT\n\n00:00:01.000 --> 00:00:04.000\nHello world\n\n"

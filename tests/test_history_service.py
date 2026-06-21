@@ -3,7 +3,7 @@
 import pytest
 
 from app.config import settings
-from app.database import get_db, init_db
+from app.database import init_db
 from services.history_service import HistoryService
 
 

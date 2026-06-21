@@ -1,7 +1,5 @@
 """Tests for ChapterService."""
 
-import pytest
-
 from services.chapter_service import Chapter, ChapterService
 
 

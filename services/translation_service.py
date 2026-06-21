@@ -1,12 +1,9 @@
 """Translation service — translate text between English and Thai via LLM."""
 
-from typing import Optional
-
 import httpx
 from loguru import logger
 
 from app.config import settings
-
 
 _SYSTEM_EN_TO_TH = """You are a professional translator. Translate the following text from English to Thai (ภาษาไทย). Maintain the original meaning, tone, and formatting (including Markdown). Output ONLY the translation, no explanations."""
 
@@ -15,13 +12,14 @@ _SYSTEM_TH_TO_EN = """You are a professional translator. Translate the following
 
 class TranslationError(Exception):
     """Raised when translation fails."""
+
     pass
 
 
 class TranslationService:
     """Translates text between English and Thai using the configured LLM provider."""
 
-    def __init__(self, model: Optional[str] = None):
+    def __init__(self, model: str | None = None):
         self.model = model or settings.ollama_model
         self._client = httpx.Client(timeout=300)
 
@@ -80,7 +78,10 @@ class TranslationService:
         if not settings.openai_api_key:
             raise TranslationError("OpenAI API key not configured")
         url = f"{settings.openai_base_url.rstrip('/')}/chat/completions"
-        headers = {"Authorization": f"Bearer {settings.openai_api_key}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {settings.openai_api_key}",
+            "Content-Type": "application/json",
+        }
         payload = {
             "model": settings.openai_model,
             "messages": [

@@ -35,6 +35,13 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "TCH"]
+ignore = [
+    "B904",  # raise from in except — intentional for HTTP exception conversion
+    "N806",  # uppercase mock variables in tests (conventional for MockXxx)
+    "SIM105",  # contextlib.suppress — try/except/pass is more readable here
+    "SIM108",  # ternary operator — if/else is more readable here
+    "E501",  # line too long — many long strings in prompts and URLs
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

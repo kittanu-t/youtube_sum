@@ -1,12 +1,9 @@
 """Study notes service — generate structured study notes from transcripts."""
 
-from typing import Optional
-
 import httpx
 from loguru import logger
 
 from app.config import settings
-
 
 _SYSTEM_PROMPT = """You are an expert educator and note-taker. Given a YouTube video transcript, generate comprehensive, well-structured study notes in Markdown format. Be thorough, clear, and educational."""
 
@@ -46,13 +43,14 @@ Transcript:
 
 class NotesError(Exception):
     """Raised when study note generation fails."""
+
     pass
 
 
 class NotesService:
     """Generates structured study notes from video transcripts."""
 
-    def __init__(self, model: Optional[str] = None):
+    def __init__(self, model: str | None = None):
         self.model = model or settings.ollama_model
         self._client = httpx.Client(timeout=300)
 
@@ -95,13 +93,17 @@ class NotesService:
 
     def _generate_single(self, text: str, language: str) -> str:
         """Generate notes for a single chunk."""
-        lang_instruction = "\n\nWrite the entire response in Thai (ภาษาไทย)." if language == "th" else ""
+        lang_instruction = (
+            "\n\nWrite the entire response in Thai (ภาษาไทย)." if language == "th" else ""
+        )
         user_prompt = _USER_TEMPLATE.format(text=text, lang_instruction=lang_instruction)
         return self._call_llm(user_prompt)
 
     def _merge_notes(self, partials: list[str], language: str) -> str:
         """Merge partial notes into a single document."""
-        lang_instruction = " Write the entire response in Thai (ภาษาไทย)." if language == "th" else ""
+        lang_instruction = (
+            " Write the entire response in Thai (ภาษาไทย)." if language == "th" else ""
+        )
         user_prompt = (
             "Merge these partial study notes into one comprehensive, well-organized document. "
             "Remove duplicates, combine related sections, and maintain all section headings. "
@@ -144,7 +146,10 @@ class NotesService:
         if not settings.openai_api_key:
             raise NotesError("OpenAI API key not configured")
         url = f"{settings.openai_base_url.rstrip('/')}/chat/completions"
-        headers = {"Authorization": f"Bearer {settings.openai_api_key}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {settings.openai_api_key}",
+            "Content-Type": "application/json",
+        }
         payload = {
             "model": settings.openai_model,
             "messages": [

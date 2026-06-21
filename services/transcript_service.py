@@ -1,7 +1,6 @@
 """Transcript service — fetch and clean YouTube video transcripts."""
 
 import re
-from typing import Optional
 
 from loguru import logger
 from youtube_transcript_api import (
@@ -18,6 +17,7 @@ from services.youtube_service import YouTubeService
 
 class TranscriptError(Exception):
     """Raised when a transcript cannot be retrieved."""
+
     pass
 
 
@@ -34,7 +34,7 @@ class TranscriptService:
     def get_transcript(
         self,
         url: str,
-        languages: Optional[list[str]] = None,
+        languages: list[str] | None = None,
     ) -> str:
         """Fetch the transcript for a YouTube video.
 
@@ -73,9 +73,7 @@ class TranscriptService:
             return self._fetch_via_ytdlp(url, languages)
         except Exception as exc:
             logger.error("All transcript methods failed for {}", video_id)
-            raise TranscriptError(
-                f"Could not retrieve transcript for {video_id}: {exc}"
-            ) from exc
+            raise TranscriptError(f"Could not retrieve transcript for {video_id}: {exc}") from exc
 
     def _fetch_via_api(self, video_id: str, languages: list[str]) -> str:
         """Fetch transcript using youtube-transcript-api."""
@@ -96,8 +94,8 @@ class TranscriptService:
 
     def _fetch_via_ytdlp(self, url: str, languages: list[str]) -> str:
         """Fetch transcript using yt-dlp as fallback."""
-        import tempfile
         import os
+        import tempfile
 
         lang = languages[0] if languages else "en"
         tmpdir = tempfile.mkdtemp()
@@ -121,7 +119,7 @@ class TranscriptService:
         for fname in os.listdir(tmpdir):
             if fname.endswith(f".{lang}.vtt"):
                 filepath = os.path.join(tmpdir, fname)
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     content = f.read()
                 os.remove(filepath)
                 os.rmdir(tmpdir)
