@@ -1,0 +1,26 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - LLM_PROVIDER=ollama
+    env_file:
+      - .env
+    volumes:
+      - ./output:/app/output
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  web:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - LLM_PROVIDER=ollama
+    env_file:
+      - .env
+    volumes:
+      - ./output:/app/output
+    command: streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
