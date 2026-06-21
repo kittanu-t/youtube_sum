@@ -2,7 +2,8 @@
 
 import pytest
 
-from app.database import init_db
+from app.config import settings
+from app.database import get_db, init_db
 from services.history_service import HistoryService
 
 
@@ -10,7 +11,7 @@ from services.history_service import HistoryService
 def setup_db(tmp_path, monkeypatch):
     """Use a temp database for each test."""
     db_path = tmp_path / "test.db"
-    monkeypatch.setenv("DATABASE_PATH", str(db_path))
+    monkeypatch.setattr(settings, "database_path", db_path)
     init_db()
 
 

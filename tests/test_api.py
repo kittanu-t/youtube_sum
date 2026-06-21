@@ -3,19 +3,28 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from api.routes import router
 
 
 @pytest.fixture
-def client():
-    return TestClient(router)
+def app():
+    """Create a minimal FastAPI app with the router for testing."""
+    app = FastAPI()
+    app.include_router(router, prefix="/api")
+    return app
+
+
+@pytest.fixture
+def client(app):
+    return TestClient(app)
 
 
 class TestHealthEndpoint:
     def test_health_check(self, client):
-        response = client.get("/health")
+        response = client.get("/api/health")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
@@ -23,7 +32,7 @@ class TestHealthEndpoint:
 
 class TestVideoInfoEndpoint:
     def test_invalid_url(self, client):
-        response = client.get("/video-info", params={"url": "https://example.com"})
+        response = client.get("/api/video-info", params={"url": "https://example.com"})
         assert response.status_code == 400
 
     def test_valid_url_returns_info(self, client):
@@ -38,13 +47,13 @@ class TestVideoInfoEndpoint:
         with patch("api.routes.YouTubeService") as MockService:
             MockService.validate_url.return_value = True
             MockService.get_video_info.return_value = mock_info
-            response = client.get("/video-info", params={"url": "https://youtube.com/watch?v=abc123"})
+            response = client.get("/api/video-info", params={"url": "https://youtube.com/watch?v=abc123"})
             assert response.status_code == 200
 
 
 class TestSummarizeEndpoint:
     def test_invalid_url(self, client):
-        response = client.post("/summarize", json={"url": "https://example.com"})
+        response = client.post("/api/summarize", json={"url": "https://example.com"})
         assert response.status_code == 400
 
     def test_valid_request(self, client):
@@ -68,7 +77,7 @@ class TestSummarizeEndpoint:
             MockCS.return_value.get_chapters.return_value = []
             MockHS.get_by_video_id.return_value = None
 
-            response = client.post("/summarize", json={
+            response = client.post("/api/summarize", json={
                 "url": "https://youtube.com/watch?v=abc123",
                 "level": "short",
                 "language": "en",
@@ -80,7 +89,7 @@ class TestSummarizeEndpoint:
 
 class TestNotesEndpoint:
     def test_invalid_url(self, client):
-        response = client.post("/notes", json={"url": "https://example.com"})
+        response = client.post("/api/notes", json={"url": "https://example.com"})
         assert response.status_code == 400
 
 
@@ -88,7 +97,7 @@ class TestTranslateEndpoint:
     def test_translate_request(self, client):
         with patch("api.routes.TranslationService") as MockTS:
             MockTS.return_value.translate.return_value = "translated text"
-            response = client.post("/translate", json={
+            response = client.post("/api/translate", json={
                 "text": "Hello",
                 "target_language": "th",
             })
@@ -99,7 +108,7 @@ class TestTranslateEndpoint:
 
 class TestExportEndpoint:
     def test_export_markdown(self, client):
-        response = client.post("/export", json={
+        response = client.post("/api/export", json={
             "video_id": "abc",
             "summary": "Test summary",
             "format": "markdown",
@@ -110,7 +119,7 @@ class TestExportEndpoint:
         assert data["filename"].endswith(".md")
 
     def test_export_txt(self, client):
-        response = client.post("/export", json={
+        response = client.post("/api/export", json={
             "video_id": "abc",
             "format": "txt",
         })
@@ -118,14 +127,14 @@ class TestExportEndpoint:
         assert response.json()["filename"].endswith(".txt")
 
     def test_export_json(self, client):
-        response = client.post("/export", json={
+        response = client.post("/api/export", json={
             "video_id": "abc",
             "format": "json",
         })
         assert response.status_code == 200
 
     def test_export_csv(self, client):
-        response = client.post("/export", json={
+        response = client.post("/api/export", json={
             "video_id": "abc",
             "format": "csv",
         })
@@ -133,7 +142,7 @@ class TestExportEndpoint:
         assert response.json()["filename"].endswith(".csv")
 
     def test_invalid_format(self, client):
-        response = client.post("/export", json={
+        response = client.post("/api/export", json={
             "video_id": "abc",
             "format": "pdf",
         })
@@ -145,23 +154,23 @@ class TestHistoryEndpoints:
         with patch("api.routes.HistoryService") as MockHS:
             MockHS.get_all.return_value = []
             MockHS.count.return_value = 0
-            response = client.get("/history")
+            response = client.get("/api/history")
             assert response.status_code == 200
 
     def test_delete_history(self, client):
         with patch("api.routes.HistoryService") as MockHS:
             MockHS.delete.return_value = True
-            response = client.delete("/history/1")
+            response = client.delete("/api/history/1")
             assert response.status_code == 200
 
     def test_delete_not_found(self, client):
         with patch("api.routes.HistoryService") as MockHS:
             MockHS.delete.return_value = False
-            response = client.delete("/history/999")
+            response = client.delete("/api/history/999")
             assert response.status_code == 404
 
     def test_clear_history(self, client):
         with patch("api.routes.HistoryService") as MockHS:
             MockHS.clear_all.return_value = 5
-            response = client.delete("/history")
+            response = client.delete("/api/history")
             assert response.status_code == 200

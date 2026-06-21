@@ -6,11 +6,11 @@ from typing import Optional
 from loguru import logger
 from youtube_transcript_api import (
     NoTranscriptFound,
-    NoTranscriptAvailable,
     TranscriptsDisabled,
     VideoUnavailable,
     YouTubeTranscriptApi,
 )
+from youtube_transcript_api._errors import CouldNotRetrieveTranscript
 from youtube_transcript_api.formatters import TextFormatter
 
 from services.youtube_service import YouTubeService
@@ -61,7 +61,7 @@ class TranscriptService:
         # Primary: youtube-transcript-api
         try:
             return self._fetch_via_api(video_id, languages)
-        except (NoTranscriptFound, NoTranscriptAvailable, TranscriptsDisabled) as exc:
+        except (NoTranscriptFound, TranscriptsDisabled, CouldNotRetrieveTranscript) as exc:
             logger.warning("Transcript API failed: {}. Trying fallback...", exc)
         except VideoUnavailable:
             raise TranscriptError(f"Video {video_id} is unavailable or private")

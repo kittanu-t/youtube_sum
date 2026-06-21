@@ -82,14 +82,15 @@ class TestExportJson:
 class TestExportFlashcardsCsv:
     def test_csv_format(self, sample_data):
         result = ExportService().export_flashcards_csv(sample_data.study_notes)
-        lines = result.strip().split("\n")
-        assert lines[0] == "Question,Answer"
+        lines = result.strip().splitlines()
+        assert lines[0].strip() == "Question,Answer"
 
     def test_csv_with_no_qa(self):
-        result = ExportService().export_flashcards_csv("Some random text")
+        result = ExportService().export_flashcards_csv("Some random text with no structure at all")
         lines = result.strip().split("\n")
-        # Should at least have header
         assert lines[0] == "Question,Answer"
+        # Should at least have the header even if no Q&A found
+        assert len(lines) >= 1
 
 
 class TestStripMarkdown:
@@ -109,4 +110,3 @@ class TestStripMarkdown:
         text = "[link text](http://example.com)"
         result = ExportService._strip_markdown(text)
         assert "link text" in result
-<longcat_arg_value>
